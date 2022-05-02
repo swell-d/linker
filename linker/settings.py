@@ -9,24 +9,37 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(^et$nvxjqvn2lhbpb3wd+h*l=e5&&(60$i^9uvp)c=stp3#fv'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-(^et$nvxjqvn2lhbpb3wd+h*l=e5&&(60$i^9uvp)c=stp3#fv')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if 'RUN_IN_HEROKU' in os.environ:
+    import django_heroku
 
-ALLOWED_HOSTS = []
-
+    django_heroku.settings(locals())
+    ALLOWED_HOSTS = ['.herokuapp.com']
+    DEBUG = False
+    SECURE_HSTS_SECONDS = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com']
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    ALLOWED_HOSTS = []
+    DEBUG = True
+    CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1']
 
 # Application definition
 
@@ -70,7 +83,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'linker.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
@@ -80,7 +92,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -100,7 +111,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -111,7 +121,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
