@@ -1,3 +1,6 @@
 from django.db import models
 
-# Create your models here.
+
+class Link(models.Model):
+    alias = models.CharField(max_length=256, null=False, blank=False, verbose_name='Alias', unique=True)
+    link = models.URLField(null=False, blank=False, verbose_name='Link')
