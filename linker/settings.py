@@ -21,26 +21,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-(^et$nvxjqvn2lhbpb3wd+h*l=e5&&(60$i^9uvp)c=stp3#fv')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-if 'RUN_IN_HEROKU' in os.environ:
-    import django_heroku
-
-    django_heroku.settings(locals())
-    ALLOWED_HOSTS = ['.herokuapp.com']
-    DEBUG = False
-    SECURE_HSTS_SECONDS = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
-    CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com']
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-else:
-    ALLOWED_HOSTS = []
-    DEBUG = True
-    CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1']
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,13 +30,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -137,3 +115,23 @@ WHITENOISE_MANIFEST_STRICT = True
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+if 'RUN_IN_HEROKU' in os.environ:
+    import django_heroku
+
+    django_heroku.settings(locals())
+    ALLOWED_HOSTS = ['.herokuapp.com']
+    DEBUG = False
+    SECURE_HSTS_SECONDS = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com']
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    ALLOWED_HOSTS = []
+    DEBUG = True
+    CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1']
