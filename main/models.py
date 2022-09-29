@@ -6,4 +6,4 @@ class Link(models.Model):
     link = models.URLField(null=False, blank=False, verbose_name='Link')
 
     def __str__(self):
-        return f'{self.alias} :: {self.link}'
+        return f'https://linker24.herokuapp.com/{self.alias}'
