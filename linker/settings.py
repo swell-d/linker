@@ -117,18 +117,18 @@ WHITENOISE_MANIFEST_STRICT = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.environ.get('SECRET_KEY', 'my-secret-key') != 'my-secret-key':
-    ALLOWED_HOSTS = ['linker24.de']
-    DEBUG = False
-    SECURE_HSTS_SECONDS = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
-    CSRF_TRUSTED_ORIGINS = ['https://linker24.de']
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-else:
-    ALLOWED_HOSTS = ['*']
-    DEBUG = True
-    CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1']
+# if os.environ.get('SECRET_KEY', 'my-secret-key') != 'my-secret-key':
+ALLOWED_HOSTS = ['linker24.de']
+DEBUG = False
+SECURE_HSTS_SECONDS = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+CSRF_TRUSTED_ORIGINS = ['https://linker24.de']
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+# else:
+#     ALLOWED_HOSTS = ['*']
+#     DEBUG = True
+#     CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1']
