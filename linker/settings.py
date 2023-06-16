@@ -122,7 +122,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if True or os.environ.get('SECRET_KEY', 'my-secret-key') != 'my-secret-key':
-    ALLOWED_HOSTS = ['linker24.de']
+    ALLOWED_HOSTS = ['127.0.0.1', 'linker24.de']
     DEBUG = False
     SECURE_HSTS_SECONDS = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
