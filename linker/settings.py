@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-(^et$nvxjqvn2lhbpb3wd+h*l=e5&&(60$i^9uvp)c=stp3#fv')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
 
 # Application definition
 
@@ -117,21 +117,18 @@ WHITENOISE_MANIFEST_STRICT = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if 'RUN_IN_HEROKU' in os.environ:
-    import django_heroku
-
-    django_heroku.settings(locals())
-    ALLOWED_HOSTS = ['.herokuapp.com']
+if os.environ.get('SECRET_KEY', 'my-secret-key') != 'my-secret-key':
+    ALLOWED_HOSTS = ['linker24.de']
     DEBUG = False
     SECURE_HSTS_SECONDS = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
-    CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com']
+    CSRF_TRUSTED_ORIGINS = ['https://linker24.de']
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['*']
     DEBUG = True
     CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1']
