@@ -4,8 +4,10 @@
     git clone git@github.com:swell-d/linker.git .
     python3 -m venv venv
     source venv/bin/activate
+    pip install -r requirements.txt
     python manage.py collectstatic --noinput
-    python run_full.py
+    python manage.py makemigrations main
+    python manage.py migrate
     python manage.py createsuperuser
     
     server {
@@ -24,6 +26,10 @@
     }
     
     python manage.py runserver 0.0.0.0:8090
+    deactivate
+
+    rm -r venv
     
     docker build -t linker24 .
+    find . -mindepth 1 -maxdepth 1 -not -name 'db.sqlite3' -not -name 'staticfiles' -exec rm -rf {} +
     docker run -d --restart unless-stopped --name linker24 -p 8090:8090 -v /var/www/linker24.de/db.sqlite3:/app/db.sqlite3 linker24
