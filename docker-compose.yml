@@ -1,0 +1,48 @@
+name: linker24
+
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env, see README}
+    ports:
+      # Reachable only through nginx on the host.
+      - "127.0.0.1:8090:8090"
+    volumes:
+      # The only writable path on disk. SQLite needs the whole directory for its journal.
+      - ./data:/data
+
+    # Least privilege, on top of the non-root user set in the Dockerfile.
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid,nodev
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 32
+    mem_limit: 256m
+    cpus: 1.0
+
+    healthcheck:
+      # An unknown alias answers 404 only if gunicorn, Django and the DB lookup all work.
+      test:
+        - CMD
+        - python
+        - -c
+        - |
+          import http.client, sys
+          c = http.client.HTTPConnection('127.0.0.1', 8090, timeout=3)
+          c.request('GET', '/healthcheck', headers={'X-Forwarded-Proto': 'https'})
+          sys.exit(c.getresponse().status >= 500)
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"

@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # Application definition
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -73,7 +74,7 @@ WSGI_APPLICATION = 'linker.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.environ.get('SQLITE_PATH', BASE_DIR / 'db.sqlite3'),
     }
 }
 
@@ -117,6 +118,17 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# With DEBUG off, Django's default logging sends errors only to ADMINS by email,
+# so without this a 500 leaves no traceback in `docker compose logs`.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'stderr': {'class': 'logging.StreamHandler', 'level': 'ERROR'},
+    },
+    'root': {'handlers': ['stderr']},
+}
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if True or os.environ.get('SECRET_KEY', 'my-secret-key') != 'my-secret-key':

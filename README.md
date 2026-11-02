@@ -1,35 +1,62 @@
-    cd /var/www/
-    mkdir linker24.de
-    cd linker24.de/
-    git clone git@github.com:swell-d/linker.git .
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    python manage.py collectstatic --noinput
-    python manage.py makemigrations main
-    python manage.py migrate
-    python manage.py createsuperuser
-    
+# linker
+
+URL shortener behind linker24.de: Django and gunicorn in a locked-down container, with nginx on the host in front.
+
+## Deploy
+
+    git clone git@github.com:swell-d/linker.git /var/www/linker24.de
+    cd /var/www/linker24.de
+
+    echo "SECRET_KEY=$(openssl rand -hex 50)" > .env
+    chmod 600 .env
+
+    # The container runs as uid 10001 and can write only to ./data
+    sudo install -d -o 10001 -g 10001 -m 700 data
+
+    docker compose up -d --build
+    docker compose exec web python manage.py createsuperuser
+
+Migrations run when the container starts. Static files are built into the image and served by WhiteNoise.
+
+`unable to open database file` or `attempt to write a readonly database` in `docker compose logs` means `data/` or the database file is not owned by uid 10001.
+
+## Update
+
+    git pull
+    docker compose up -d --build
+
+## nginx
+
     server {
         server_name linker24.de;
-    
+
         location / {
             proxy_pass http://127.0.0.1:8090;
-        }
-    
-        location /static/ {
-            alias /var/www/linker24.de/staticfiles/;
-            expires 7d;
-            add_header Cache-Control "public";
-            try_files $uri =404;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     }
-    
-    python manage.py runserver 0.0.0.0:8090
-    deactivate
 
-    rm -r venv
-    
-    docker build -t linker24 .
-    find . -mindepth 1 -maxdepth 1 -not -name 'db.sqlite3' -not -name 'staticfiles' -exec rm -rf {} +
-    docker run -d --restart unless-stopped --name linker24 -p 8090:8090 -v /var/www/linker24.de/db.sqlite3:/app/db.sqlite3 linker24
+`X-Forwarded-Proto` is required: without it Django treats every request as plain HTTP and keeps redirecting it to HTTPS.
+
+## Moving from the old `docker run` setup
+
+The old directory stays in place as a backup until you delete it.
+
+    docker rm -f linker24
+    mv /var/www/linker24.de /var/www/linker24.de.old
+
+    git clone git@github.com:swell-d/linker.git /var/www/linker24.de
+    cd /var/www/linker24.de
+
+    echo "SECRET_KEY=$(openssl rand -hex 50)" > .env
+    chmod 600 .env
+
+    sudo install -d -o 10001 -g 10001 -m 700 data
+    sudo cp ../linker24.de.old/db.sqlite3 data/
+    sudo chown 10001:10001 data/db.sqlite3
+
+    docker compose up -d --build
+
+Then replace the nginx config with the one above, dropping the old `location /static/` block, and reload nginx. Changing `SECRET_KEY` logs everyone out of the admin; no other data is affected.
