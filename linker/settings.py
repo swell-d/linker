@@ -126,8 +126,13 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'stderr': {'class': 'logging.StreamHandler', 'level': 'ERROR'},
+        'null': {'class': 'logging.NullHandler'},
     },
     'root': {'handlers': ['stderr']},
+    'loggers': {
+        # Bots with a foreign Host header would otherwise fill the log with tracebacks.
+        'django.security.DisallowedHost': {'handlers': ['null'], 'propagate': False},
+    },
 }
 
 # SECURITY WARNING: don't run with debug turned on in production!
